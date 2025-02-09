@@ -30,7 +30,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
         answerCategory.add(category);
       }
     }
-    LOG.info("Выведен список всех категорий юзера {}", userId.id());
+    LOG.info("Репозиторий вернул все категории юзера {}", userId.id());
     return answerCategory;
   }
 
@@ -38,11 +38,11 @@ public class InMemoryCategoryRepository implements CategoryRepository {
   public Category findById(CategoryId categoryId) {
     for (Category category : categories) {
       if (category.getCategoryId().equals(categoryId)) {
-        LOG.info("Категория с айди {} найдена", categoryId.id());
+        LOG.info("Категория с айди {} найдена в репозитории", categoryId.id());
         return category;
       }
     }
-    LOG.info("Категория с айди {} не найдена", categoryId.id());
+    LOG.info("Категория с айди {} не найдена в репозитории", categoryId.id());
     return null;
   }
 
@@ -50,18 +50,18 @@ public class InMemoryCategoryRepository implements CategoryRepository {
   public void deleteByCategoryId(CategoryId categoryId) {
     for (Category category : categories) {
       if (category.getCategoryId().equals(categoryId)) {
-        LOG.info("Категория с айди {} успешно удалена", categoryId.id());
+        LOG.info("Категория с айди {} успешно удалена из репозитория", categoryId.id());
         categories.remove(category);
       }
     }
-    LOG.info("Категория с айди {} не найдена", categoryId.id());
+    LOG.info("Категория с айди {} не найдена в репозитории", categoryId.id());
   }
 
   @Override
   public void deleteByUserId(UserId userId) {
     for (Category category : categories) {
       if (category.getUserId().equals(userId)) {
-        LOG.info("Категория с айди {} успешно удалена", category.getCategoryId().id());
+        LOG.info("Категория с айди {} успешно удалена из репозитория", category.getCategoryId().id());
         categories.remove(category);
       }
     }
@@ -72,7 +72,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     CategoryId categoryId = getNewCategoryId();
     category.setCategoryId(categoryId);
     categories.add(category);
-    LOG.info("Категория {} с айди {} успешно добавлена пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
+    LOG.info("Категория {} с айди {} успешно добавлена в репозиторий пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
     return category.getCategoryId();
   }
 }

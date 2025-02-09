@@ -10,5 +10,6 @@ public interface SiteRepository {
   List<Site> findAllSite(UserId userId);
   void deleteSiteById(SiteId id, UserId userId);
   void deleteByUserId(UserId userId);
-  void add(SiteId siteId, UserId userId);
+  void add(Site site);
+
 }
