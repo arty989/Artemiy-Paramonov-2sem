@@ -1,5 +1,6 @@
 package com.example.S2_H1.controllers;
 
+import com.example.S2_H1.entity.UserDto;
 import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.services.UserService;
 import lombok.AllArgsConstructor;
@@ -12,8 +13,8 @@ public class UserController {
   private final UserService userService;
 
   @PostMapping("/register/{userName}/{password}")
-  public UserId registerUser(@PathVariable String userName, @PathVariable String password) {
-    return userService.registerUser(userName, password);
+  public UserId registerUser(@RequestBody UserDto userDto) {
+    return userService.registerUser(userDto);
   }
 
   @DeleteMapping("/delete/{userId}")

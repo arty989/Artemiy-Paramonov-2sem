@@ -3,7 +3,6 @@ package com.example.S2_H1.controllers;
 
 import com.example.S2_H1.entity.Article;
 import com.example.S2_H1.entity.Category;
-import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.services.ArticleService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

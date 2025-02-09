@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class Article {
-  String name;
-  ArticleId id;
-  String url;
-  CategoryId categoryId;
+  private String name;
+  private ArticleId id;
+  private String url;
+  private CategoryId categoryId;
 }

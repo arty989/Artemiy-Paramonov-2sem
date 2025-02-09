@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Category {
-  CategoryId categoryId;
-  String name;
-  UserId userId;
+  private CategoryId categoryId;
+  private String name;
+  private UserId userId;
 }

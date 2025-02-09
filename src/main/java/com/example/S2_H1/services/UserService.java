@@ -1,6 +1,7 @@
 package com.example.S2_H1.services;
 
 import com.example.S2_H1.entity.User;
+import com.example.S2_H1.entity.UserDto;
 import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.repositories.CategoryRepository;
 import com.example.S2_H1.repositories.SiteRepository;
@@ -15,11 +16,9 @@ public class UserService {
   private final CategoryRepository categoryRepository;
   private final SiteRepository siteRepository;
 
-  public UserId registerUser(String userName, String password) {
-    UserId id = userRepository.generateId();
-    User user = User.builder().userId(id).userName(userName).password(password).build();
-    userRepository.saveAccount(user);
-    return id;
+  public UserId registerUser(UserDto userDto) {
+    User user = User.builder().userName(userDto.getUserName()).password(userDto.getUserPassword()).build();
+    return userRepository.saveAccount(user);
   }
 
   public void deleteUser(Long parsUserId) {

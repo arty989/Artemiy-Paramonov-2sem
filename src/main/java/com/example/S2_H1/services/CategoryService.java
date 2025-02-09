@@ -31,6 +31,7 @@ public class CategoryService {
   }
 
   public CategoryId create(String name, Long userId) {
-    return categoryRepository.create(name, new UserId(userId));
+    Category category = Category.builder().name(name).userId(new UserId(userId)).build();
+    return categoryRepository.save(category);
   }
 }

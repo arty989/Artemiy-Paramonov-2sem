@@ -1,8 +1,6 @@
 package com.example.S2_H1.controllers;
 
 import com.example.S2_H1.entity.Site;
-import com.example.S2_H1.entity.SiteId;
-import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.services.SiteService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;

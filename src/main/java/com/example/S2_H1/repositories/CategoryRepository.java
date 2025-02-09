@@ -15,5 +15,5 @@ public interface CategoryRepository {
 
   void deleteByUserId(UserId userId);
 
-  CategoryId create(String name, UserId userId);
+  CategoryId save(Category category);
 }

@@ -3,6 +3,8 @@ package com.example.S2_H1.repositories;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
 import com.example.S2_H1.entity.UserId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 public class InMemoryCategoryRepository implements CategoryRepository {
+  private static final Logger LOG = LoggerFactory.getLogger(InMemoryCategoryRepository.class);
+
   private final AtomicLong nextCategoryId = new AtomicLong(0);
   private final List<Category> categories = new ArrayList<>();
 
@@ -26,31 +30,49 @@ public class InMemoryCategoryRepository implements CategoryRepository {
         answerCategory.add(category);
       }
     }
+    LOG.info("Выведен список всех категорий юзера {}", userId.id());
     return answerCategory;
   }
 
   @Override
-  public Category findById(CategoryId id) {
-    return categories.stream()
-    .filter(category -> category.getCategoryId().equals(id))
-    .findFirst()
-    .orElse(null);
+  public Category findById(CategoryId categoryId) {
+    for (Category category : categories) {
+      if (category.getCategoryId().equals(categoryId)) {
+        LOG.info("Категория с айди {} найдена", categoryId.id());
+        return category;
+      }
+    }
+    LOG.info("Категория с айди {} не найдена", categoryId.id());
+    return null;
   }
 
   @Override
-  public void deleteByCategoryId(CategoryId id) {
-    categories.removeIf(category -> category.getCategoryId().equals(id));
+  public void deleteByCategoryId(CategoryId categoryId) {
+    for (Category category : categories) {
+      if (category.getCategoryId().equals(categoryId)) {
+        LOG.info("Категория с айди {} успешно удалена", categoryId.id());
+        categories.remove(category);
+      }
+    }
+    LOG.info("Категория с айди {} не найдена", categoryId.id());
   }
 
   @Override
   public void deleteByUserId(UserId userId) {
-    categories.removeIf(category -> category.getUserId().equals(userId));
+    for (Category category : categories) {
+      if (category.getUserId().equals(userId)) {
+        LOG.info("Категория с айди {} успешно удалена", category.getCategoryId().id());
+        categories.remove(category);
+      }
+    }
   }
 
   @Override
-  public CategoryId create(String name, UserId userId) {
-    Category category = Category.builder().name(name).userId(userId).categoryId(getNewCategoryId()).build();
+  public CategoryId save(Category category) {
+    CategoryId categoryId = getNewCategoryId();
+    category.setCategoryId(categoryId);
     categories.add(category);
+    LOG.info("Категория {} с айди {} успешно добавлена пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
     return category.getCategoryId();
   }
 }

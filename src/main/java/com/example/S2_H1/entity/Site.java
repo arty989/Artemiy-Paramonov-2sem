@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Site {
-  SiteId id;
-  String url;
-  UserId userId;
+  private SiteId id;
+  private String url;
+  private UserId userId;
 }
