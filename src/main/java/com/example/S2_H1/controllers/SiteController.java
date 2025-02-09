@@ -20,7 +20,7 @@ public class SiteController {
     return siteService.getAllAvailableSites();
   }
 
-  @GetMapping("/{userId}")
+  @GetMapping("/user/{userId}")
   public List<Site> getUserSites(@PathVariable Long userId) {
     return siteService.getUserSites(userId);
   }
