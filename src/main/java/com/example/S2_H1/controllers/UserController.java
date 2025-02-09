@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final UserService userService;
 
-  @PostMapping("/register/{userName}/{password}")
+  @PostMapping("/register")
   public UserId registerUser(@RequestBody UserDto userDto) {
     return userService.registerUser(userDto);
   }
