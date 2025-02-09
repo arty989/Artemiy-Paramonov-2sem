@@ -44,7 +44,7 @@ public class SiteService {
     LOG.info("Добавление сайта с айди {} юзеру с айди {}", parsSiteId, userId);
     SiteId siteId = new SiteId(parsSiteId);
     for (Sites enumSite : Sites.values()) {
-      if (enumSite.getId() == siteId) {
+      if (enumSite.getId().equals(siteId)) {
         Site site = Site.builder().id(siteId).userId(new UserId(userId)).url(enumSite.getUrl()).build();
         LOG.info("Сайт с айди {} найден", siteId.siteId());
         siteRepository.add(site);
