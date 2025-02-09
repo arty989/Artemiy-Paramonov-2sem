@@ -16,17 +16,17 @@ public class SiteController {
   private final SiteService siteService;
 
   @GetMapping("/{userId}")
-  public List<Site> getUserSites(@PathVariable UserId userId) {
+  public List<Site> getUserSites(@PathVariable Long userId) {
     return siteService.getSites(userId);
   }
 
   @PutMapping("/add/{userId}/{siteId}")
-  public void addSiteToUser(@PathVariable UserId userId, @PathVariable SiteId siteId) {
+  public void addSiteToUser(@PathVariable Long userId, @PathVariable Long siteId) {
     siteService.addSite(siteId, userId);
   }
 
   @DeleteMapping("/delete/{userId}/{siteId}")
-  public void deleteSiteFromUser(@PathVariable UserId userId, @PathVariable SiteId siteId) {
+  public void deleteSiteFromUser(@PathVariable Long userId, @PathVariable Long siteId) {
     siteService.deleteSite(siteId, userId);
   }
 }

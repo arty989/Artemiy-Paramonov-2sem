@@ -16,27 +16,27 @@ public class CategoryController {
   private final CategoryService categoryService;
 
   @GetMapping("/user/{userId}")
-  public List<Category> getUserCategories(@PathVariable UserId userId) {
+  public List<Category> getUserCategories(@PathVariable Long userId) {
     return categoryService.findAll(userId);
   }
 
   @GetMapping("/{categoryId}")
-  public Category getCategoryById(@PathVariable CategoryId categoryId) {
+  public Category getCategoryById(@PathVariable Long categoryId) {
     return categoryService.findById(categoryId);
   }
 
   @DeleteMapping("/delete/{categoryId}")
-  public void deleteCategoryById(@PathVariable CategoryId categoryId) {
+  public void deleteCategoryById(@PathVariable Long categoryId) {
     categoryService.deleteCategory(categoryId);
   }
 
   @DeleteMapping("/delete/user/{userId}")
-  public void deleteUserCategories(@PathVariable UserId userId) {
+  public void deleteUserCategories(@PathVariable Long userId) {
     categoryService.deleteAllUserCategories(userId);
   }
 
   @PostMapping("/create/{name}/{userId}")
-  public CategoryId createCategoryForUser(@PathVariable String name, @PathVariable UserId userId) {
+  public CategoryId createCategoryForUser(@PathVariable String name, @PathVariable Long userId) {
     return categoryService.create(name, userId);
   }
 

@@ -14,15 +14,15 @@ import java.util.List;
 public class SiteService {
   private final SiteRepository siteRepository;
 
-  public List<Site> getSites(UserId userId) {
-    return siteRepository.findAllSite(userId);
+  public List<Site> getSites(Long userId) {
+    return siteRepository.findAllSite(new UserId(userId));
   }
 
-  public void deleteSite(SiteId siteId, UserId userId) {
-    siteRepository.deleteSiteById(siteId, userId);
+  public void deleteSite(Long siteId, Long userId) {
+    siteRepository.deleteSiteById(new SiteId(siteId), new UserId(userId));
   }
 
-  public void addSite(SiteId siteId, UserId userId) {
-    siteRepository.add(siteId, userId);
+  public void addSite(Long siteId, Long userId) {
+    siteRepository.add(new SiteId(siteId), new UserId(userId));
   }
 }

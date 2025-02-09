@@ -20,7 +20,7 @@ public class ArticleController {
   private final ArticleService articleService;
 
   @GetMapping("/{userId}")
-  public Map<Article, Category> getArticlesForUser(@PathVariable UserId userId) {
+  public Map<Article, Category> getArticlesForUser(@PathVariable Long userId) {
     return  articleService.getArticles(userId);
   }
 }

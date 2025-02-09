@@ -16,7 +16,7 @@ public class ArticleService {
   private final ArticleRepository articleRepository;
   private final CategoryRepository categoryRepository;
 
-  public Map<Article, Category> getArticles(UserId userId) {
-    return articleRepository.getArticles(userId, categoryRepository);
+  public Map<Article, Category> getArticles(Long userId) {
+    return articleRepository.getArticles(new UserId(userId), categoryRepository);
   }
 }

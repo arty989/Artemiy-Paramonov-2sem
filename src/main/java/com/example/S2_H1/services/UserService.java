@@ -22,7 +22,8 @@ public class UserService {
     return id;
   }
 
-  public void deleteUser(UserId userId) {
+  public void deleteUser(Long parsUserId) {
+    UserId userId = new UserId(parsUserId);
     userRepository.deleteAccount(userId);
     categoryRepository.deleteByUserId(userId);
     siteRepository.deleteByUserId(userId);

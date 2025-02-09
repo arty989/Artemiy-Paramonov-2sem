@@ -14,23 +14,23 @@ import java.util.List;
 public class CategoryService {
   private final CategoryRepository categoryRepository;
 
-  public List<Category> findAll(UserId userId) {
-    return categoryRepository.findAll(userId);
+  public List<Category> findAll(Long userId) {
+    return categoryRepository.findAll(new UserId(userId));
   }
 
-  public Category findById(CategoryId id) {
-    return categoryRepository.findById(id);
+  public Category findById(Long categoryId) {
+    return categoryRepository.findById(new CategoryId(categoryId));
   }
 
-  public void deleteCategory(CategoryId categoryId) {
-    categoryRepository.deleteByCategoryId(categoryId);
+  public void deleteCategory(Long categoryId) {
+    categoryRepository.deleteByCategoryId(new CategoryId(categoryId));
   }
 
-  public void deleteAllUserCategories(UserId userId) {
-    categoryRepository.deleteByUserId(userId);
+  public void deleteAllUserCategories(Long userId) {
+    categoryRepository.deleteByUserId(new UserId(userId));
   }
 
-  public CategoryId create(String name, UserId userId) {
-    return categoryRepository.create(name, userId);
+  public CategoryId create(String name, Long userId) {
+    return categoryRepository.create(name, new UserId(userId));
   }
 }
