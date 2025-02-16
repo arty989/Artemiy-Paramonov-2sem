@@ -1,17 +1,16 @@
-package com.example.S2_H1.repositories;
+package com.example.S2_H1.repository;
 
 import com.example.S2_H1.entity.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 @Repository
 public class InMemoryUserRepository implements UserRepository {
-  private static final Logger LOG = LoggerFactory.getLogger(InMemoryUserRepository.class);
 
   private final List<User> users = new ArrayList<>();
   private final AtomicLong nextUserId = new AtomicLong(0);
@@ -25,7 +24,7 @@ public class InMemoryUserRepository implements UserRepository {
     UserId userId = generateId();
     user.setUserId(userId);
     users.add(user);
-    LOG.info("Юзер с айди {} успешно добавлен в репозиторий", user.getUserId().id());
+    log.info("Юзер с айди {} успешно добавлен в репозиторий", user.getUserId().id());
     return userId;
   }
 
@@ -34,7 +33,7 @@ public class InMemoryUserRepository implements UserRepository {
     for (User user : users) {
       if (user.getUserId().equals(userId)) {
         users.remove(user);
-        LOG.info("Юзер с айди {} успешно удалён из репозитория", user.getUserId().id());
+        log.info("Юзер с айди {} успешно удалён из репозитория", user.getUserId().id());
         break;
       }
     }

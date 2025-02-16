@@ -1,19 +1,18 @@
-package com.example.S2_H1.repositories;
+package com.example.S2_H1.repository;
 
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
 import com.example.S2_H1.entity.UserId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 @Repository
 public class InMemoryCategoryRepository implements CategoryRepository {
-  private static final Logger LOG = LoggerFactory.getLogger(InMemoryCategoryRepository.class);
 
   private final AtomicLong nextCategoryId = new AtomicLong(0);
   private final List<Category> categories = new ArrayList<>();
@@ -30,7 +29,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
         answerCategory.add(category);
       }
     }
-    LOG.info("Репозиторий вернул все категории юзера {}", userId.id());
+    log.info("Репозиторий вернул все категории юзера {}", userId.id());
     return answerCategory;
   }
 
@@ -38,11 +37,11 @@ public class InMemoryCategoryRepository implements CategoryRepository {
   public Category findById(CategoryId categoryId) {
     for (Category category : categories) {
       if (category.getCategoryId().equals(categoryId)) {
-        LOG.info("Категория с айди {} найдена в репозитории", categoryId.id());
+        log.info("Категория с айди {} найдена в репозитории", categoryId.id());
         return category;
       }
     }
-    LOG.info("Категория с айди {} не найдена в репозитории", categoryId.id());
+    log.info("Категория с айди {} не найдена в репозитории", categoryId.id());
     return null;
   }
 
@@ -50,18 +49,18 @@ public class InMemoryCategoryRepository implements CategoryRepository {
   public void deleteByCategoryId(CategoryId categoryId) {
     for (Category category : categories) {
       if (category.getCategoryId().equals(categoryId)) {
-        LOG.info("Категория с айди {} успешно удалена из репозитория", categoryId.id());
+        log.info("Категория с айди {} успешно удалена из репозитория", categoryId.id());
         categories.remove(category);
       }
     }
-    LOG.info("Категория с айди {} не найдена в репозитории", categoryId.id());
+    log.info("Категория с айди {} не найдена в репозитории", categoryId.id());
   }
 
   @Override
   public void deleteByUserId(UserId userId) {
     for (Category category : categories) {
       if (category.getUserId().equals(userId)) {
-        LOG.info("Категория с айди {} успешно удалена из репозитория", category.getCategoryId().id());
+        log.info("Категория с айди {} успешно удалена из репозитория", category.getCategoryId().id());
         categories.remove(category);
       }
     }
@@ -72,7 +71,7 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     CategoryId categoryId = getNewCategoryId();
     category.setCategoryId(categoryId);
     categories.add(category);
-    LOG.info("Категория {} с айди {} успешно добавлена в репозиторий пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
+    log.info("Категория {} с айди {} успешно добавлена в репозиторий пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
     return category.getCategoryId();
   }
 }

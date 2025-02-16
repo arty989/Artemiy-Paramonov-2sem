@@ -1,4 +1,4 @@
-package com.example.S2_H1.repositories;
+package com.example.S2_H1.repository;
 
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
