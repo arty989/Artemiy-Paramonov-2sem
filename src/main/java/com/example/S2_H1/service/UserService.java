@@ -7,6 +7,7 @@ import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.repository.CategoryRepository;
 import com.example.S2_H1.repository.SiteRepository;
 import com.example.S2_H1.repository.UserRepository;
+import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,16 @@ public class UserService {
   public void deleteUser(Long parsUserId) {
     log.info("Удаление пользователя с айди {}", parsUserId);
     UserId userId = new UserId(parsUserId);
-    userRepository.deleteAccount(userId);
+    try {
+      userRepository.deleteAccount(userId);
     log.info("Удаление категорий пользователя с айди {}", parsUserId);
     categoryRepository.deleteByUserId(userId);
     log.info("Удаление сайтов пользователя с айди {}", parsUserId);
     siteRepository.deleteByUserId(userId);
+    } catch (Exception e) {
+      log.info("Пользователь с айди {} не был найден", parsUserId);
+      throw new NoSuchUserException("Данный пользователь не найден", e);
+    }
   }
 
   public User updateUserName(UserUpdateNameDto userUpdateNameDto, Long parsUserId) {

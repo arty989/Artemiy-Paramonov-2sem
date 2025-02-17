@@ -1,7 +1,7 @@
 package com.example.S2_H1.repository;
 
-import com.example.S2_H1.dto.UserUpdateNameDto;
 import com.example.S2_H1.entity.*;
+import com.example.S2_H1.repository.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -35,9 +35,10 @@ public class InMemoryUserRepository implements UserRepository {
       if (user.getUserId().equals(userId)) {
         users.remove(user);
         log.info("Юзер с айди {} успешно удалён из репозитория", user.getUserId().id());
-        break;
+        return;
       }
     }
+    throw new UserNotFoundException("Пользователь с id " + userId.id() + " отсутствует в репозитории");
   }
 
   @Override
