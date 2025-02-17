@@ -26,7 +26,7 @@ public class EndToEndTest {
 
   @Test
   public void testGetAllAvailableSites() {
-    ResponseEntity<Map> response = restTemplate.getForEntity("http://localhost:" + port + "/sites", Map.class);
+    ResponseEntity<Map> response = restTemplate.getForEntity("http://localhost:" + port + "/api/sites", Map.class);
     assertEquals(HttpStatus.OK, response.getStatusCode());
     Map sites = response.getBody();
     assertNotNull(sites);
