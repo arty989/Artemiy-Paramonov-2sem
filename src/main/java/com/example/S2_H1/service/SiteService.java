@@ -1,5 +1,6 @@
 package com.example.S2_H1.service;
 
+import com.example.S2_H1.dto.SiteDto;
 import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.entity.SiteId;
 import com.example.S2_H1.entity.Sites;
@@ -39,9 +40,9 @@ public class SiteService {
     siteRepository.deleteSiteById(new SiteId(siteId), new UserId(userId));
   }
 
-  public void addSite(Long parsSiteId, Long userId) {
-    log.info("Добавление сайта с айди {} юзеру с айди {}", parsSiteId, userId);
-    SiteId siteId = new SiteId(parsSiteId);
+  public void addSite(SiteDto siteDto, Long userId) {
+    log.info("Добавление сайта с айди {} юзеру с айди {}", siteDto.getSiteId(), userId);
+    SiteId siteId = new SiteId(siteDto.getSiteId());
     for (Sites enumSite : Sites.values()) {
       if (enumSite.getId().equals(siteId)) {
         Site site = Site.builder().id(siteId).userId(new UserId(userId)).url(enumSite.getUrl()).build();

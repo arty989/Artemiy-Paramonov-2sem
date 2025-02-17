@@ -1,5 +1,6 @@
 package com.example.S2_H1.service;
 
+import com.example.S2_H1.dto.CategoryDto;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
 import com.example.S2_H1.entity.UserId;
@@ -37,10 +38,23 @@ public class CategoryService {
     categoryRepository.deleteByUserId(new UserId(userId));
   }
 
-  public CategoryId create(String name, Long userId) {
-    log.info("Создание категории {} для пользователя {}", name, userId);
-    Category category = Category.builder().name(name).userId(new UserId(userId)).build();
+  public CategoryId create(CategoryDto categoryDto, Long userId) {
+    log.info("Создание категории {} для пользователя {}", categoryDto.getCategoryName(), userId);
+    Category category = Category.builder().name(categoryDto.getCategoryName()).userId(new UserId(userId)).build();
     log.info("Категория создана");
     return categoryRepository.save(category);
+  }
+
+  public Category updateCategoryData(CategoryDto categoryDto, Long parsCategoryId) {
+    CategoryId categoryId = new CategoryId(parsCategoryId);
+    log.info("Обновление данных категории с айди {}", categoryId);
+    Category categoryWithOutdateData = categoryRepository.findById(categoryId);
+    log.info("Получена категория с устаревшими данными");
+    Category updatedCategory = Category.builder().categoryId(categoryId).userId(categoryWithOutdateData.getUserId()).name(categoryDto.getCategoryName()).build();
+    log.info("Данные категории обновлены");
+    categoryRepository.deleteByCategoryId(categoryId);
+    categoryRepository.saveWithoutIdUpdate(updatedCategory);
+    log.info("Обновления сохранены в репозиторий");
+    return updatedCategory;
   }
 }

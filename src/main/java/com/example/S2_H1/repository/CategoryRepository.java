@@ -16,4 +16,6 @@ public interface CategoryRepository {
   void deleteByUserId(UserId userId);
 
   CategoryId save(Category category);
+
+  void saveWithoutIdUpdate(Category category);
 }

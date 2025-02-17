@@ -1,5 +1,7 @@
 package com.example.S2_H1.controller;
 
+import com.example.S2_H1.api.SiteApi;
+import com.example.S2_H1.dto.SiteDto;
 import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.entity.SiteId;
 import com.example.S2_H1.service.SiteService;
@@ -13,29 +15,28 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/sites")
-public class SiteController {
+public class SiteController implements SiteApi {
   private final SiteService siteService;
 
-  @GetMapping
+  @Override
   public ResponseEntity<Map<SiteId, String>> getAllAvailableSites() {
     return ResponseEntity.status(HttpStatus.OK).body(siteService.getAllAvailableSites());
   }
 
-  @GetMapping("/user/{userId}")
+  @Override
   public ResponseEntity<List<Site>> getUserSites(@PathVariable Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(siteService.getUserSites(userId));
   }
 
-  @PutMapping("/add/{userId}/{siteId}")
-  public ResponseEntity<Void> addSiteToUser(@PathVariable Long userId, @PathVariable Long siteId) {
-    siteService.addSite(siteId, userId);
-    return ResponseEntity.status(HttpStatus.OK).build();
+  @Override
+  public ResponseEntity<Void> addSiteToUser(SiteDto siteDto, Long userId) {
+    siteService.addSite(siteDto, userId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @DeleteMapping("/delete/{userId}/{siteId}")
   public ResponseEntity<Void> deleteSiteFromUser(@PathVariable Long userId, @PathVariable Long siteId) {
     siteService.deleteSite(siteId, userId);
-    return ResponseEntity.status(HttpStatus.OK).build();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }
