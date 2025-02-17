@@ -69,6 +69,6 @@ public class UserControllerMvcTest {
     doThrow(new UserNotFoundException("Пользователь с ID " + nonExistentId + " не найден")).when(userService).deleteUser(any(Long.class));
     mockMvc.perform(delete("/api/users/delete/{userId}", nonExistentId))
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$").value("Пользователь с ID 999 не найден"));
+            .andExpect(jsonPath("$.message").value("Пользователь с ID 999 не найден"));
   }
 }
