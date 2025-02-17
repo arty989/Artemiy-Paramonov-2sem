@@ -18,7 +18,7 @@ public class UserController implements UserApi {
 
   @Override
   public ResponseEntity<UserId> registerUser(UserDto userDto) {
-    return ResponseEntity.status(HttpStatus.OK).body(userService.registerUser(userDto));
+    return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userDto));
   }
 
   @Override
