@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-@Endpoint(id = "custom")
+@Endpoint(id = "uuid")
 public class UuidActuatorEndpoint {
 
   @ReadOperation
