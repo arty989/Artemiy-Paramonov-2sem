@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Tag(name = "Article API", description = "Управление статьями")
 @RequestMapping("/api/articles")
@@ -27,7 +28,7 @@ public interface ArticleApi {
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
   @GetMapping("/{userId}")
-  ResponseEntity<Map<Article, Category>> getArticlesForUser(
+  CompletableFuture<ResponseEntity<Map<Article, Category>>> getArticlesForUser(
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
   );

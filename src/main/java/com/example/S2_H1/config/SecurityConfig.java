@@ -1,5 +1,6 @@
-package com.example.S2_H1.security;
+package com.example.S2_H1.config;
 
+import com.example.S2_H1.security.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

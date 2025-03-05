@@ -6,8 +6,12 @@ import com.example.S2_H1.entity.SiteId;
 import com.example.S2_H1.entity.Sites;
 import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.repository.SiteRepository;
+import com.example.S2_H1.repository.exception.UserNotFoundException;
+import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -30,10 +34,18 @@ public class SiteService {
     return sitesMap;
   }
 
+  //At least once
+  @Retryable(retryFor = NoSuchUserException.class, maxAttempts = 5, backoff = @Backoff(delay = 10_000))
   public List<Site> getUserSites(Long userId) {
     log.info("Получение всех сайтов юзера с айди {}", userId);
-    return siteRepository.findAllSite(new UserId(userId));
+    try {
+      return siteRepository.findAllSite(new UserId(userId));
+    } catch (UserNotFoundException e) {
+      log.warn("Пользователь не найден, повторяю попытку");
+      throw new NoSuchUserException("Пользователь не найден", e);
+    }
   }
+
 
   public void deleteSite(Long siteId, Long userId) {
     log.info("Удаление сайта с айди {} у юзера с айди {}", siteId, userId);

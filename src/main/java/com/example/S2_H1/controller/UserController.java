@@ -6,13 +6,15 @@ import com.example.S2_H1.dto.UserUpdateNameDto;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.service.UserService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
+@CircuitBreaker(name = "apiCircuitBreaker")
 public class UserController implements UserApi {
   private final UserService userService;
 

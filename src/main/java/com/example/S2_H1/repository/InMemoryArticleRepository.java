@@ -22,7 +22,6 @@ public class InMemoryArticleRepository implements ArticleRepository {
 
   @Override
   public List<Article> getArticles() {
-
     log.info("Репозиторий вернул список статей");
     return articles;
   }
