@@ -6,7 +6,6 @@ import com.example.S2_H1.entity.User;
 import com.example.S2_H1.repository.ArticleRepository;
 import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.response.article.ArticleResponse;
-import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.exception.NoSuchArticleException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
@@ -16,9 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /* По-сути это сервис для обработки и получения статей пользователя,

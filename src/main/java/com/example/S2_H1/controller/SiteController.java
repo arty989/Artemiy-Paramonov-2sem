@@ -3,7 +3,6 @@ package com.example.S2_H1.controller;
 import com.example.S2_H1.api.SiteApi;
 import com.example.S2_H1.request.site.SiteCreateRequest;
 import com.example.S2_H1.request.site.SiteIdRequest;
-import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.response.site.SiteIdResponse;
 import com.example.S2_H1.response.site.SiteResponse;
 import com.example.S2_H1.service.SiteService;

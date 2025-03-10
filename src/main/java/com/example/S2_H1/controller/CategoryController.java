@@ -2,7 +2,6 @@ package com.example.S2_H1.controller;
 
 import com.example.S2_H1.api.CategoryApi;
 import com.example.S2_H1.request.category.CategoryCreateRequest;
-import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
 import com.example.S2_H1.response.category.CategoryIdResponse;
 import com.example.S2_H1.response.category.CategoryResponse;
