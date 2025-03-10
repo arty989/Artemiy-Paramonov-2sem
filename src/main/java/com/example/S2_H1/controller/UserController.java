@@ -3,8 +3,7 @@ package com.example.S2_H1.controller;
 import com.example.S2_H1.api.UserApi;
 import com.example.S2_H1.request.user.UserCreateRequest;
 import com.example.S2_H1.request.user.UserUpdateDataRequest;
-import com.example.S2_H1.request.user.UserUpdateNameDto;
-import com.example.S2_H1.entity.User;
+import com.example.S2_H1.request.user.UserUpdateNameRequest;
 import com.example.S2_H1.response.user.UserIdResponse;
 import com.example.S2_H1.response.user.UserResponse;
 import com.example.S2_H1.service.UserService;
@@ -32,8 +31,8 @@ public class UserController implements UserApi {
   }
 
   @Override
-  public ResponseEntity<UserResponse> updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
-    return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserName(userUpdateNameDto, userId));
+  public ResponseEntity<UserResponse> updateUserName(UserUpdateNameRequest userUpdateNameRequest, Long userId) {
+    return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserName(userUpdateNameRequest, userId));
   }
 
   @Override

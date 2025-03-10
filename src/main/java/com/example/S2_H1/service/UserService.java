@@ -2,7 +2,7 @@ package com.example.S2_H1.service;
 
 import com.example.S2_H1.request.user.UserCreateRequest;
 import com.example.S2_H1.request.user.UserUpdateDataRequest;
-import com.example.S2_H1.request.user.UserUpdateNameDto;
+import com.example.S2_H1.request.user.UserUpdateNameRequest;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.response.user.UserIdResponse;
@@ -57,8 +57,8 @@ public class UserService {
 
   //Exactly Once
   @Transactional
-  public UserResponse updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
-    String newUserName = userUpdateNameDto.getNewUserName();
+  public UserResponse updateUserName(UserUpdateNameRequest userUpdateNameRequest, Long userId) {
+    String newUserName = userUpdateNameRequest.getNewUserName();
 
     if (userNames.get(userId).equals(newUserName)) {
       log.info("Новое имя пользователя совпадает с текущим");

@@ -7,8 +7,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-@Schema(name = "UserUpdateNameDto", description = "DTO для обновления имени пользователя по его ID")
-public class UserUpdateNameDto {
+@Schema(name = "UserUpdateNameRequest", description = "DTO для обновления имени пользователя по его ID")
+public class UserUpdateNameRequest {
   @Schema(description = "Новое имя пользователя", example = "Вадим")
   @NotNull(message = "New user name has to be filled")
   private String newUserName;

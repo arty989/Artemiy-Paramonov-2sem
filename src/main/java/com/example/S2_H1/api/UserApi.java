@@ -2,8 +2,7 @@ package com.example.S2_H1.api;
 
 import com.example.S2_H1.request.user.UserCreateRequest;
 import com.example.S2_H1.request.user.UserUpdateDataRequest;
-import com.example.S2_H1.request.user.UserUpdateNameDto;
-import com.example.S2_H1.entity.User;
+import com.example.S2_H1.request.user.UserUpdateNameRequest;
 import com.example.S2_H1.response.user.UserIdResponse;
 import com.example.S2_H1.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +57,7 @@ public interface UserApi {
   })
   @PatchMapping("/rename/{userId}")
   ResponseEntity<UserResponse> updateUserName(
-    @RequestBody UserUpdateNameDto userUpdateNameDto,
+    @RequestBody UserUpdateNameRequest userUpdateNameRequest,
 
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
