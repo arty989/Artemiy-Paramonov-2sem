@@ -9,6 +9,7 @@ import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
 import com.example.S2_H1.response.category.CategoryIdResponse;
 import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.exception.NoSuchCategoryException;
+import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,17 @@ public class CategoryService {
   @CacheEvict(value = "categories", key = "#categoryId")
   public void deleteCategory(Long categoryId) {
     log.info("Удаление категории с айди {}", categoryId);
-    categoryRepository.deleteById(categoryId);
+
+    if (categoryRepository.existsById(categoryId)) {
+
+      categoryRepository.deleteById(categoryId);
+      log.info("Категория с id {} удалена из репозитория", categoryId);
+
+    } else {
+
+      log.info("Категория с id {} не была найдена", categoryId);
+      throw new NoSuchCategoryException("Категория с id " + categoryId + " не найден");
+    }
   }
 
   @Transactional
@@ -107,6 +118,6 @@ public class CategoryService {
 
   @Transactional(readOnly = true)
   private Category getCategoryById(Long categoryId) {
-    return categoryRepository.findById(categoryId).orElseThrow(() -> new NoSuchCategoryException("Сайт с id " + categoryId + " не найден"));
+    return categoryRepository.findById(categoryId).orElseThrow(() -> new NoSuchCategoryException("Категория с id " + categoryId + " не найдена"));
   }
 }

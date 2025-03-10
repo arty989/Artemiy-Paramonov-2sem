@@ -1,5 +1,8 @@
 package com.example.S2_H1.controller;
 
+import com.example.S2_H1.service.exception.NoSuchArticleException;
+import com.example.S2_H1.service.exception.NoSuchCategoryException;
+import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
@@ -10,8 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-  @ExceptionHandler(NoSuchUserException.class)
-  public ResponseEntity<String> handleUserNotFound(Exception ex) {
+  @ExceptionHandler({NoSuchUserException.class, NoSuchArticleException.class, NoSuchSiteException.class, NoSuchCategoryException.class})
+  public ResponseEntity<String> handleNotFound(Exception ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 

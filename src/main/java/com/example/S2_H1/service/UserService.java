@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -60,7 +61,7 @@ public class UserService {
   public UserResponse updateUserName(UserUpdateNameRequest userUpdateNameRequest, Long userId) {
     String newUserName = userUpdateNameRequest.getNewUserName();
 
-    if (userNames.get(userId).equals(newUserName)) {
+    if (Objects.equals(userNames.get(userId),newUserName)) {
       log.info("Новое имя пользователя совпадает с текущим");
       return new UserResponse(getUserById(userId));
     }
