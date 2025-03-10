@@ -1,1 +1,10 @@
-spring.application.name=2H_S1
+spring:
+  application:
+  name : 2H_S1
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: shutdown
+      base-path: /admin/actuator
