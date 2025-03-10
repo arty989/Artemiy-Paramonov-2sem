@@ -8,7 +8,8 @@ import com.example.S2_H1.service.SiteService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class SiteController implements SiteApi {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @DeleteMapping("/delete/{userId}/{siteId}")
+  @Override
   public ResponseEntity<Void> deleteSiteFromUser(@PathVariable Long userId, @PathVariable Long siteId) {
     siteService.deleteSite(siteId, userId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

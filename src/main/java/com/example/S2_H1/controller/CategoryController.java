@@ -4,8 +4,9 @@ import com.example.S2_H1.api.CategoryApi;
 import com.example.S2_H1.dto.CategoryDto;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
-import com.example.S2_H1.entity.User;
 import com.example.S2_H1.service.CategoryService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@RateLimiter(name = "apiRateLimiter")
+@CircuitBreaker(name = "apiCircuitBreaker")
 public class CategoryController implements CategoryApi {
   private final CategoryService categoryService;
 

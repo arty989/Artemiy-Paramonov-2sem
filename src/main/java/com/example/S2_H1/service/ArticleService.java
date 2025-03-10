@@ -7,11 +7,13 @@ import com.example.S2_H1.repository.ArticleRepository;
 import com.example.S2_H1.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -21,7 +23,8 @@ public class ArticleService {
   private final ArticleRepository articleRepository;
   private final CategoryRepository categoryRepository;
 
-  public Map<Article, Category> getArticles(Long userId) {
+  @Async
+  public CompletableFuture<Map<Article, Category>> getArticles(Long userId) {
     log.info("Получение текущих статей");
     List<Article> articles = articleRepository.getArticles();
     log.info("Получение категорий для юзера {}", userId);
@@ -33,6 +36,6 @@ public class ArticleService {
       articlesForCategories.put(articles.get(0), category);
     }
     log.info("Вернули юзеру список статей и категорий, к которым они относятся");
-    return articlesForCategories;
+    return CompletableFuture.completedFuture(articlesForCategories);
   }
 }

@@ -1,6 +1,8 @@
 package com.example.S2_H1.repository;
 
-import com.example.S2_H1.entity.*;
+
+import com.example.S2_H1.entity.User;
+import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.repository.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

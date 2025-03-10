@@ -7,6 +7,9 @@ import com.example.S2_H1.entity.UserId;
 import com.example.S2_H1.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,16 +26,19 @@ public class CategoryService {
     return categoryRepository.findAll(new UserId(userId));
   }
 
+  @Cacheable(value = "categories", key = "#categoryId")
   public Category findById(Long categoryId) {
     log.info("Получение категории с айди {}", categoryId);
     return categoryRepository.findById(new CategoryId(categoryId));
   }
 
+  @CacheEvict(value = "categories", key = "#categoryId")
   public void deleteCategory(Long categoryId) {
     log.info("Удаление категории с айди {}", categoryId);
     categoryRepository.deleteByCategoryId(new CategoryId(categoryId));
   }
 
+  @CacheEvict(value = "categories", allEntries = true)
   public void deleteAllUserCategories(Long userId) {
     log.info("Удаление всех категорий юзера {}", userId);
     categoryRepository.deleteByUserId(new UserId(userId));
@@ -45,14 +51,15 @@ public class CategoryService {
     return categoryRepository.save(category);
   }
 
-  public Category updateCategoryData(CategoryDto categoryDto, Long parsCategoryId) {
-    CategoryId categoryId = new CategoryId(parsCategoryId);
+  @CachePut(value = "categories", key = "#categoryId")
+  public Category updateCategoryData(CategoryDto categoryDto, Long categoryId) {
+    CategoryId needTypeCategoryId = new CategoryId(categoryId);
     log.info("Обновление данных категории с айди {}", categoryId);
-    Category categoryWithOutdateData = categoryRepository.findById(categoryId);
+    Category categoryWithOutdateData = categoryRepository.findById(needTypeCategoryId);
     log.info("Получена категория с устаревшими данными");
-    Category updatedCategory = Category.builder().categoryId(categoryId).userId(categoryWithOutdateData.getUserId()).name(categoryDto.getCategoryName()).build();
+    Category updatedCategory = Category.builder().categoryId(needTypeCategoryId).userId(categoryWithOutdateData.getUserId()).name(categoryDto.getCategoryName()).build();
     log.info("Данные категории обновлены");
-    categoryRepository.deleteByCategoryId(categoryId);
+    categoryRepository.deleteByCategoryId(needTypeCategoryId);
     categoryRepository.saveWithoutIdUpdate(updatedCategory);
     log.info("Обновления сохранены в репозиторий");
     return updatedCategory;
