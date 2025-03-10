@@ -1,22 +1,22 @@
 package com.example.S2_H1.service;
 
-import com.example.S2_H1.dto.SiteDto;
 import com.example.S2_H1.entity.Site;
-import com.example.S2_H1.entity.SiteId;
-import com.example.S2_H1.entity.Sites;
-import com.example.S2_H1.entity.UserId;
+import com.example.S2_H1.entity.User;
 import com.example.S2_H1.repository.SiteRepository;
-import com.example.S2_H1.repository.exception.UserNotFoundException;
+import com.example.S2_H1.repository.UserRepository;
+import com.example.S2_H1.request.site.SiteCreateRequest;
+import com.example.S2_H1.request.site.SiteIdRequest;
+import com.example.S2_H1.response.site.SiteIdResponse;
+import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -24,44 +24,95 @@ import java.util.Map;
 public class SiteService {
 
   private final SiteRepository siteRepository;
+  private final UserRepository userRepository;
 
-  public Map<SiteId, String> getAllAvailableSites() {
-    Map<SiteId, String> sitesMap = new HashMap<>();
-
-    for (Sites site : Sites.values()) {
-      sitesMap.put(site.getId(), site.getUrl());
-    }
-    return sitesMap;
+  @Transactional(readOnly = true)
+  public List<Site> getAllAvailableSites() {
+    return siteRepository.findAll();
   }
 
   //At least once
+  @Transactional(readOnly = true)
   @Retryable(retryFor = NoSuchUserException.class, maxAttempts = 5, backoff = @Backoff(delay = 10_000))
   public List<Site> getUserSites(Long userId) {
     log.info("Получение всех сайтов юзера с айди {}", userId);
+
     try {
-      return siteRepository.findAllSite(new UserId(userId));
-    } catch (UserNotFoundException e) {
+      User user = getUserById(userId);
+      log.info("Пользователь найден, получаем его сайты");
+
+      return user.getSites();
+    } catch (NoSuchUserException e) {
       log.warn("Пользователь не найден, повторяю попытку");
-      throw new NoSuchUserException("Пользователь не найден", e);
+
+      throw e;
     }
   }
 
+  @Transactional
+  public void deleteSiteFromUser(Long userId, SiteIdRequest siteIdRequest) {
+    log.info("Удаление сайта с айди {} у юзера с айди {}", siteIdRequest.getSiteId(), userId);
 
-  public void deleteSite(Long siteId, Long userId) {
-    log.info("Удаление сайта с айди {} у юзера с айди {}", siteId, userId);
-    siteRepository.deleteSiteById(new SiteId(siteId), new UserId(userId));
+    User user = getUserById(userId);
+    log.info("Пользователь найден");
+
+    user.deleteSite(siteIdRequest.getSiteId());
+    log.info("Операция завершена");
+
+    userRepository.save(user);
   }
 
-  public void addSite(SiteDto siteDto, Long userId) {
-    log.info("Добавление сайта с айди {} юзеру с айди {}", siteDto.getSiteId(), userId);
-    SiteId siteId = new SiteId(siteDto.getSiteId());
-    for (Sites enumSite : Sites.values()) {
-      if (enumSite.getId().equals(siteId)) {
-        Site site = Site.builder().id(siteId).userId(new UserId(userId)).url(enumSite.getUrl()).build();
-        log.info("Сайт с айди {} найден", siteId.siteId());
-        siteRepository.add(site);
-      }
-    }
+  @Transactional
+  public void addSiteToUser(Long userId, SiteIdRequest siteIdRequest) {
+    Long siteId = siteIdRequest.getSiteId();
+
     log.info("Добавление сайта с айди {} юзеру с айди {}", siteId, userId);
+
+    User user = getUserById(userId);
+    log.info("Пользователь с id {} найден", userId);
+
+    Site site = getSiteById(siteId);
+    log.info("Сайт с id {} найден", siteId);
+
+    user.addSite(site);
+    log.info("Сайт успешно добавлен пользователю");
+
+    userRepository.save(user);
+    log.info("Изменения сохранены в репозитории");
+  }
+
+  @Transactional
+  public SiteIdResponse createSite(SiteCreateRequest siteCreateRequest) {
+    log.info("Создание нового сайта");
+
+    Site site = new Site(siteCreateRequest.getSiteUrl());
+    log.info("Сайт создан");
+
+    siteRepository.save(site);
+    log.info("Сайт сохранён");
+
+    return new SiteIdResponse(site.getSiteId());
+  }
+
+  @Transactional
+  public void deleteSite(Long siteId) {
+    log.info("Удаление сайта с id {}", siteId);
+
+    if (siteRepository.existsById(siteId)) {
+      log.info("Сайт с id {} удалён из репозитория", siteId);
+    } else {
+      log.info("Сайт с id {} не был найден", siteId);
+      throw new NoSuchSiteException("Сайт с id " + siteId + " не найден");
+    }
+  }
+
+  @Transactional(readOnly = true)
+  private User getUserById(Long userId) {
+    return userRepository.findById(userId).orElseThrow(() -> new NoSuchUserException("Пользователь с id " + userId + " не найден"));
+  }
+
+  @Transactional(readOnly = true)
+  private Site getSiteById(Long siteId) {
+    return siteRepository.findById(siteId).orElseThrow(() -> new NoSuchSiteException("Сайт с id " + siteId + " не найден"));
   }
 }

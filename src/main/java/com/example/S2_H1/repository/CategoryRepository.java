@@ -1,21 +1,12 @@
+
 package com.example.S2_H1.repository;
 
 import com.example.S2_H1.entity.Category;
-import com.example.S2_H1.entity.CategoryId;
-import com.example.S2_H1.entity.UserId;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+@Repository
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+  void deleteByUserId(Long userId);
 
-public interface CategoryRepository {
-  List<Category> findAll(UserId userId);
-
-  Category findById(CategoryId id);
-
-  void deleteByCategoryId(CategoryId categoryId);
-
-  void deleteByUserId(UserId userId);
-
-  CategoryId save(Category category);
-
-  void saveWithoutIdUpdate(Category category);
 }

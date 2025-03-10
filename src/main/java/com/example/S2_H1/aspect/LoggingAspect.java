@@ -30,7 +30,7 @@ public class LoggingAspect {
     Instant startTime = Instant.now();
     Object result = joinPoint.proceed();
     Instant endTime = Instant.now();
-    Duration duration = Duration.between(startTime, endTime);  // Разница времени
+    Duration duration = Duration.between(startTime, endTime);
     System.out.println(
       "Метод " + joinPoint.getSignature().getName() + " выполнен за " + duration.toMillis() + " мс");
     ++counter;
