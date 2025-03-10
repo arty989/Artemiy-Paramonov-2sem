@@ -7,8 +7,9 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
+@Schema(name = "SiteCreateRequest", description = "DTO для создания сайта")
 public class SiteCreateRequest {
-  @Schema(name = "SiteCreateRequest", description = "DTO для создания сайта")
+  @Schema(description = "Url сайта", example = "https://www.mtsbank.ru/")
   @NotNull(message = "Site url has to be filled")
   private String siteUrl;
 }

@@ -55,7 +55,7 @@ public class CategoryService {
   @CacheEvict(value = "categories", allEntries = true)
   public void deleteAllUserCategories(Long userId) {
     log.info("Удаление всех категорий юзера {}", userId);
-    categoryRepository.deleteByUserId(userId);
+    categoryRepository.deleteByUserUserId(userId);
   }
 
   @Transactional

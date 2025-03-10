@@ -2,7 +2,7 @@ spring:
   application:
     name : 2H_S1
   datasource:
-    url: postgresql://localhost:5432/courses_app
+    url: jdbc:postgresql://localhost:5432/courses_app
     username: postgres
     password: password
   jpa:

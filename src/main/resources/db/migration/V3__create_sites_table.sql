@@ -1,4 +1,4 @@
 CREATE TABLE sites (
-  site_id SERIAL PRIMARY KEY,
+  site_id BIGSERIAL PRIMARY KEY,
   site_url VARCHAR(255) NOT NULL
 );
