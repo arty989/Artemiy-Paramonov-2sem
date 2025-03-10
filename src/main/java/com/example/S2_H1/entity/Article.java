@@ -20,6 +20,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Table(name = "articles")
 public class Article {
   @Id
+  @Getter
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "article_id")
   private Long articleId;
@@ -42,6 +43,7 @@ public class Article {
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "category_id",  nullable = false)
   @NotNull(message = "Article category has to be filled")
+  @Getter
   private Category category;
 
   @Override

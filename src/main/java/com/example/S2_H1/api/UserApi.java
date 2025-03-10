@@ -5,6 +5,7 @@ import com.example.S2_H1.request.user.UserUpdateDataRequest;
 import com.example.S2_H1.request.user.UserUpdateNameDto;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.response.user.UserIdResponse;
+import com.example.S2_H1.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -56,7 +57,7 @@ public interface UserApi {
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
   @PatchMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserName(
+  ResponseEntity<UserResponse> updateUserName(
     @RequestBody UserUpdateNameDto userUpdateNameDto,
 
     @Parameter(description = "ID пользователя", example = "1")
@@ -72,7 +73,7 @@ public interface UserApi {
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
   @PutMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserData(
+  ResponseEntity<UserResponse> updateUserData(
     @RequestBody UserUpdateDataRequest userCreateDto,
 
     @Parameter(description = "ID пользователя", example = "1")

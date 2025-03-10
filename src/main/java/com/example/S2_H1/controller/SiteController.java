@@ -5,6 +5,7 @@ import com.example.S2_H1.request.site.SiteCreateRequest;
 import com.example.S2_H1.request.site.SiteIdRequest;
 import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.response.site.SiteIdResponse;
+import com.example.S2_H1.response.site.SiteResponse;
 import com.example.S2_H1.service.SiteService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,12 +20,12 @@ public class SiteController implements SiteApi {
   private final SiteService siteService;
 
   @Override
-  public ResponseEntity<List<Site>> getAllAvailableSites() {
+  public ResponseEntity<List<SiteResponse>> getAllAvailableSites() {
     return ResponseEntity.status(HttpStatus.OK).body(siteService.getAllAvailableSites());
   }
 
   @Override
-  public ResponseEntity<List<Site>> getUserSites(Long userId) {
+  public ResponseEntity<List<SiteResponse>> getUserSites(Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(siteService.getUserSites(userId));
   }
 

@@ -7,6 +7,7 @@ import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.repository.CategoryRepository;
 import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
 import com.example.S2_H1.response.category.CategoryIdResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.exception.NoSuchCategoryException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -28,20 +30,25 @@ public class CategoryService {
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  public List<Category> findAllUserCategories(Long userId) {
+  public List<CategoryResponse> findAllUserCategories(Long userId) {
     log.info("Получение всех категорий юзера с айди {}", userId);
 
     User user = getUserById(userId);
     log.info("Пользователь найден, получаем его категории");
 
-    return user.getCategories();
+    List<CategoryResponse> responseCategories = new ArrayList<>();
+    for (Category category : user.getCategories()) {
+      responseCategories.add(new CategoryResponse(category));
+    }
+
+    return responseCategories;
   }
 
   @Transactional(readOnly = true)
   @Cacheable(value = "categories", key = "#categoryId")
-  public Category findById(Long categoryId) {
+  public CategoryResponse findById(Long categoryId) {
     log.info("Получение категории с айди {}", categoryId);
-    return getCategoryById(categoryId);
+    return new CategoryResponse(getCategoryById(categoryId));
   }
 
   @Transactional
@@ -65,8 +72,11 @@ public class CategoryService {
     User user = getUserById(userId);
     log.info("Пользователь найден");
 
-    Category category = new Category(categoryCreateRequest.getCategoryName());
+    Category category = new Category(categoryCreateRequest.getCategoryName(), user);
     log.info("Категория создана");
+
+    categoryRepository.save(category);
+    log.info("Категория сохранена в репозитории");
 
     user.addCategory(category);
 
@@ -76,7 +86,7 @@ public class CategoryService {
 
   @Transactional
   @CachePut(value = "categories", key = "#categoryId")
-  public Category updateCategoryData(Long categoryId, CategoryUpdateDataRequest categoryUpdateDataRequest) {
+  public CategoryResponse updateCategoryData(Long categoryId, CategoryUpdateDataRequest categoryUpdateDataRequest) {
     log.info("Обновление данных категории с айди {}", categoryId);
 
     Category category = getCategoryById(categoryId);
@@ -87,7 +97,7 @@ public class CategoryService {
 
     categoryRepository.save(category);
     log.info("Обновления сохранены в репозиторий");
-    return category;
+    return new CategoryResponse(category);
   }
 
   @Transactional(readOnly = true)

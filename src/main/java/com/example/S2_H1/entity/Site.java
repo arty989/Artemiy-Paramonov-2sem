@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -37,6 +38,14 @@ public class Site {
 
   @ManyToMany(mappedBy = "sites")
   private Set<User> users = new HashSet<>();
+
+  public void addUser(User user) {
+    users.add(user);
+  }
+
+  public void deleteUser(User delUser) {
+    users.removeIf(user -> Objects.equals(user, delUser));
+  }
 
   @Override
   public boolean equals(Object o) {

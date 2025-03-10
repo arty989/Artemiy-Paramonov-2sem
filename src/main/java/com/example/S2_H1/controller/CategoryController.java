@@ -5,6 +5,7 @@ import com.example.S2_H1.request.category.CategoryCreateRequest;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
 import com.example.S2_H1.response.category.CategoryIdResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.CategoryService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
@@ -23,12 +24,12 @@ public class CategoryController implements CategoryApi {
   private final CategoryService categoryService;
 
   @Override
-  public ResponseEntity<List<Category>> getUserCategories(Long userId) {
+  public ResponseEntity<List<CategoryResponse>> getUserCategories(Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.findAllUserCategories(userId));
   }
 
   @Override
-  public ResponseEntity<Category> getCategoryById(Long categoryId) {
+  public ResponseEntity<CategoryResponse> getCategoryById(Long categoryId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.findById(categoryId));
   }
 
@@ -50,7 +51,7 @@ public class CategoryController implements CategoryApi {
   }
 
   @Override
-  public ResponseEntity<Category> updateCategoryData(CategoryUpdateDataRequest categoryUpdateDataRequest, Long categoryId) {
+  public ResponseEntity<CategoryResponse> updateCategoryData(CategoryUpdateDataRequest categoryUpdateDataRequest, Long categoryId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryData(categoryId, categoryUpdateDataRequest));
   }
 }

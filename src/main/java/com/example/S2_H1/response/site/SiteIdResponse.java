@@ -11,5 +11,5 @@ import lombok.Getter;
 public class SiteIdResponse {
   @Schema(description = "Возвращаемый id сайта", example = "1")
   @NotNull
-  private Long userId;
+  private Long siteId;
 }

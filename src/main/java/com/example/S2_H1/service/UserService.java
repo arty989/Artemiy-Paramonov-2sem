@@ -6,9 +6,11 @@ import com.example.S2_H1.request.user.UserUpdateNameDto;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.response.user.UserIdResponse;
+import com.example.S2_H1.response.user.UserResponse;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,10 +41,12 @@ public class UserService {
   }
 
   @Transactional
+  @CacheEvict(value = "categories", allEntries = true)
   public void deleteUser(Long userId) {
     log.info("Удаление пользователя с айди {}", userId);
 
     if (userRepository.existsById(userId)) {
+      userRepository.deleteById(userId);
       log.info("Пользователь с id {} удалён из репозитория", userId);
       userNames.remove(userId);
     } else {
@@ -53,12 +57,12 @@ public class UserService {
 
   //Exactly Once
   @Transactional
-  public User updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
+  public UserResponse updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
     String newUserName = userUpdateNameDto.getNewUserName();
 
     if (userNames.get(userId).equals(newUserName)) {
       log.info("Новое имя пользователя совпадает с текущим");
-      return getUserById(userId);
+      return new UserResponse(getUserById(userId));
     }
     log.info("Обновление имени юзера с айди {}, на {}", userId, newUserName);
 
@@ -70,11 +74,11 @@ public class UserService {
     userRepository.save(user);
     log.info("Изменение имени пользователя {} сохранено в репозиторий", userId);
 
-    return user;
+    return new UserResponse(user);
   }
 
   @Transactional
-  public User updateUserData(UserUpdateDataRequest userUpdateDataRequest, Long userId) {
+  public UserResponse updateUserData(UserUpdateDataRequest userUpdateDataRequest, Long userId) {
     log.info("Обновление данных юзера с айди {}", userId);
 
     User user = getUserById(userId);
@@ -87,7 +91,7 @@ public class UserService {
     log.info("Изменения данных пользователя {} сохранены в репозиторий", userId);
 
     userNames.put(userId, userUpdateDataRequest.getUserName());
-    return user;
+    return new UserResponse(user);
   }
 
   @Transactional(readOnly = true)

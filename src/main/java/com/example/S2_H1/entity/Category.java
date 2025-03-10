@@ -37,8 +37,9 @@ public class Category {
   @Column(name = "category_name", nullable = false)
   private String categoryName;
 
-  public Category(String name) {
+  public Category(String name, User user) {
     this.categoryName = name;
+    this.user = user;
   }
 
   @ManyToOne(fetch = LAZY)

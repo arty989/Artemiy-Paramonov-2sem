@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -60,7 +61,7 @@ public class User {
     this.userEmail = email;
   }
 
-  @OneToMany(mappedBy = "user", cascade = PERSIST)
+  @OneToMany(mappedBy = "user", fetch = LAZY)
   private final Set<Category> categories = new HashSet<>();
 
   public List<Category> getCategories() {
@@ -83,8 +84,8 @@ public class User {
     return new ArrayList<>(sites);
   }
 
-  public void deleteSite(Long siteId) {
-    sites.removeIf(site -> Objects.equals(site.getSiteId(), siteId));
+  public void deleteSite(Site delSite) {
+    sites.removeIf(site -> Objects.equals(site, delSite));
   }
 
   public void addSite(Site site) {

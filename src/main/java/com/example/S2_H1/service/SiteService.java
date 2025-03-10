@@ -7,6 +7,7 @@ import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.request.site.SiteCreateRequest;
 import com.example.S2_H1.request.site.SiteIdRequest;
 import com.example.S2_H1.response.site.SiteIdResponse;
+import com.example.S2_H1.response.site.SiteResponse;
 import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -27,21 +29,29 @@ public class SiteService {
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  public List<Site> getAllAvailableSites() {
-    return siteRepository.findAll();
+  public List<SiteResponse> getAllAvailableSites() {
+    List<SiteResponse> responseSites = new ArrayList<>();
+    for (Site site : siteRepository.findAll()) {
+      responseSites.add(new SiteResponse(site));
+    }
+    return responseSites;
   }
 
   //At least once
   @Transactional(readOnly = true)
   @Retryable(retryFor = NoSuchUserException.class, maxAttempts = 5, backoff = @Backoff(delay = 10_000))
-  public List<Site> getUserSites(Long userId) {
+  public List<SiteResponse> getUserSites(Long userId) {
     log.info("Получение всех сайтов юзера с айди {}", userId);
 
     try {
       User user = getUserById(userId);
       log.info("Пользователь найден, получаем его сайты");
 
-      return user.getSites();
+      List<SiteResponse> responseSites = new ArrayList<>();
+      for (Site site : user.getSites()) {
+        responseSites.add(new SiteResponse(site));
+      }
+      return responseSites;
     } catch (NoSuchUserException e) {
       log.warn("Пользователь не найден, повторяю попытку");
 
@@ -56,9 +66,12 @@ public class SiteService {
     User user = getUserById(userId);
     log.info("Пользователь найден");
 
-    user.deleteSite(siteIdRequest.getSiteId());
+    Site site = getSiteById(siteIdRequest.getSiteId());
+    user.deleteSite(site);
+    site.deleteUser(user);
     log.info("Операция завершена");
 
+    siteRepository.save(site);
     userRepository.save(user);
   }
 
@@ -77,6 +90,10 @@ public class SiteService {
     user.addSite(site);
     log.info("Сайт успешно добавлен пользователю");
 
+    site.addUser(user);
+    log.info("Пользователь успешно добавлен сайту");
+
+    siteRepository.save(site);
     userRepository.save(user);
     log.info("Изменения сохранены в репозитории");
   }
@@ -99,6 +116,7 @@ public class SiteService {
     log.info("Удаление сайта с id {}", siteId);
 
     if (siteRepository.existsById(siteId)) {
+      siteRepository.deleteById(siteId);
       log.info("Сайт с id {} удалён из репозитория", siteId);
     } else {
       log.info("Сайт с id {} не был найден", siteId);

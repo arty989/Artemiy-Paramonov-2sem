@@ -6,6 +6,7 @@ import com.example.S2_H1.request.user.UserUpdateDataRequest;
 import com.example.S2_H1.request.user.UserUpdateNameDto;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.response.user.UserIdResponse;
+import com.example.S2_H1.response.user.UserResponse;
 import com.example.S2_H1.service.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
@@ -31,12 +32,12 @@ public class UserController implements UserApi {
   }
 
   @Override
-  public ResponseEntity<User> updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
+  public ResponseEntity<UserResponse> updateUserName(UserUpdateNameDto userUpdateNameDto, Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserName(userUpdateNameDto, userId));
   }
 
   @Override
-  public ResponseEntity<User> updateUserData(UserUpdateDataRequest userUpdateDataRequest, Long userId) {
+  public ResponseEntity<UserResponse> updateUserData(UserUpdateDataRequest userUpdateDataRequest, Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserData(userUpdateDataRequest, userId));
   }
 }

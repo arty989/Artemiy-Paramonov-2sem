@@ -4,6 +4,7 @@ import com.example.S2_H1.request.site.SiteCreateRequest;
 import com.example.S2_H1.request.site.SiteIdRequest;
 import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.response.site.SiteIdResponse;
+import com.example.S2_H1.response.site.SiteResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +32,7 @@ public interface SiteApi {
     @ApiResponse(responseCode = "200", description = "Список сайтов получен"),
   })
   @GetMapping
-  ResponseEntity<List<Site>> getAllAvailableSites();
+  ResponseEntity<List<SiteResponse>> getAllAvailableSites();
 
   @Operation(
     summary = "Получить список сайтов пользователя по ID",
@@ -42,7 +43,7 @@ public interface SiteApi {
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
   @GetMapping("/user/{userId}")
-  ResponseEntity<List<Site>> getUserSites(
+  ResponseEntity<List<SiteResponse>> getUserSites(
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
   );
