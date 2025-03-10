@@ -1,9 +1,10 @@
 package com.example.S2_H1.controller;
 
 import com.example.S2_H1.api.CategoryApi;
-import com.example.S2_H1.dto.CategoryDto;
-import com.example.S2_H1.entity.Category;
-import com.example.S2_H1.entity.CategoryId;
+import com.example.S2_H1.request.category.CategoryCreateRequest;
+import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
+import com.example.S2_H1.response.category.CategoryIdResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.CategoryService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
@@ -22,12 +23,12 @@ public class CategoryController implements CategoryApi {
   private final CategoryService categoryService;
 
   @Override
-  public ResponseEntity<List<Category>> getUserCategories(Long userId) {
-    return ResponseEntity.status(HttpStatus.OK).body(categoryService.findAll(userId));
+  public ResponseEntity<List<CategoryResponse>> getUserCategories(Long userId) {
+    return ResponseEntity.status(HttpStatus.OK).body(categoryService.findAllUserCategories(userId));
   }
 
   @Override
-  public ResponseEntity<Category> getCategoryById(Long categoryId) {
+  public ResponseEntity<CategoryResponse> getCategoryById(Long categoryId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.findById(categoryId));
   }
 
@@ -44,12 +45,12 @@ public class CategoryController implements CategoryApi {
   }
 
   @Override
-  public ResponseEntity<CategoryId> createCategoryForUser(CategoryDto categoryDto, Long userId) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.create(categoryDto, userId));
+  public ResponseEntity<CategoryIdResponse> createCategoryForUser(CategoryCreateRequest categoryDto, Long userId) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategoryForUser(userId, categoryDto));
   }
 
   @Override
-  public ResponseEntity<Category> updateCategoryData(CategoryDto categoryDto, Long categoryId) {
-    return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryData(categoryDto, categoryId));
+  public ResponseEntity<CategoryResponse> updateCategoryData(CategoryUpdateDataRequest categoryUpdateDataRequest, Long categoryId) {
+    return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryData(categoryId, categoryUpdateDataRequest));
   }
 }

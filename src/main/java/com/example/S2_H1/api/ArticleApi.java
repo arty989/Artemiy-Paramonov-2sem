@@ -1,7 +1,10 @@
+
 package com.example.S2_H1.api;
 
 import com.example.S2_H1.entity.Article;
 import com.example.S2_H1.entity.Category;
+import com.example.S2_H1.response.article.ArticleResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,7 +32,7 @@ public interface ArticleApi {
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
   @GetMapping("/{userId}")
-  CompletableFuture<ResponseEntity<Map<Article, Category>>> getArticlesForUser(
+  CompletableFuture<ResponseEntity<List<ArticleResponse>>> getArticlesForUser(
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
   );

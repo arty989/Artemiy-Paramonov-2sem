@@ -1,8 +1,10 @@
 package com.example.S2_H1.api;
 
-import com.example.S2_H1.dto.CategoryDto;
+import com.example.S2_H1.request.category.CategoryCreateRequest;
 import com.example.S2_H1.entity.Category;
-import com.example.S2_H1.entity.CategoryId;
+import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
+import com.example.S2_H1.response.category.CategoryIdResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +33,7 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
   @GetMapping("/user/{userId}")
-  ResponseEntity<List<Category>> getUserCategories(
+  ResponseEntity<List<CategoryResponse>> getUserCategories(
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
   );
@@ -45,7 +47,7 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "404", description = "Категория с таким ID не найдена")
   })
   @GetMapping("/{categoryId}")
-  ResponseEntity<Category> getCategoryById(
+  ResponseEntity<CategoryResponse> getCategoryById(
     @Parameter(description = "ID категории", example = "1")
     @PathVariable Long categoryId
   );
@@ -72,7 +74,7 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "204", description = "Категории пользователя успешно удалены"),
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
-  @DeleteMapping("/delete/user/{userId}")
+  @DeleteMapping("/delete/all/user/{userId}")
   ResponseEntity<Void> deleteUserCategories(
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
@@ -86,9 +88,9 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "200", description = "Категория успешно создана"),
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
-  @PostMapping("/create/{userId}")
-  ResponseEntity<CategoryId> createCategoryForUser(
-    @RequestBody CategoryDto categoryDto,
+  @PostMapping("/create/user/{userId}")
+  ResponseEntity<CategoryIdResponse> createCategoryForUser(
+    @RequestBody CategoryCreateRequest categoryDto,
 
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
@@ -103,8 +105,8 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "404", description = "Категория с таким ID не найдена")
   })
   @PutMapping("/update/{categoryId}")
-  ResponseEntity<Category> updateCategoryData(
-    @RequestBody CategoryDto categoryDto,
+  ResponseEntity<CategoryResponse> updateCategoryData(
+    @RequestBody CategoryUpdateDataRequest categoryUpdateDataRequest,
 
     @Parameter(description = "ID категории", example = "1")
     @PathVariable Long categoryId

@@ -1,9 +1,10 @@
 package com.example.S2_H1.api;
 
-import com.example.S2_H1.dto.UserDto;
-import com.example.S2_H1.dto.UserUpdateNameDto;
-import com.example.S2_H1.entity.User;
-import com.example.S2_H1.entity.UserId;
+import com.example.S2_H1.request.user.UserCreateRequest;
+import com.example.S2_H1.request.user.UserUpdateDataRequest;
+import com.example.S2_H1.request.user.UserUpdateNameRequest;
+import com.example.S2_H1.response.user.UserIdResponse;
+import com.example.S2_H1.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +31,7 @@ public interface UserApi {
     @ApiResponse(responseCode = "201", description = "Пользователь создан"),
   })
   @PostMapping("/register")
-  ResponseEntity<UserId> registerUser(@RequestBody UserDto userDto);
+  ResponseEntity<UserIdResponse> registerUser(@RequestBody UserCreateRequest userCreateRequest);
 
   @Operation(
     summary = "Удалить пользователя по ID",
@@ -55,8 +56,8 @@ public interface UserApi {
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
   @PatchMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserName(
-    @RequestBody UserUpdateNameDto userUpdateNameDto,
+  ResponseEntity<UserResponse> updateUserName(
+    @RequestBody UserUpdateNameRequest userUpdateNameRequest,
 
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
@@ -71,8 +72,8 @@ public interface UserApi {
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
   @PutMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserData(
-    @RequestBody UserDto userDto,
+  ResponseEntity<UserResponse> updateUserData(
+    @RequestBody UserUpdateDataRequest userCreateDto,
 
     @Parameter(description = "ID пользователя", example = "1")
     @PathVariable Long userId
