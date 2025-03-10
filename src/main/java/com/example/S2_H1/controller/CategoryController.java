@@ -1,7 +1,10 @@
 package com.example.S2_H1.controller;
 
+import com.example.S2_H1.api.CategoryApi;
+import com.example.S2_H1.dto.CategoryDto;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.CategoryId;
+import com.example.S2_H1.entity.User;
 import com.example.S2_H1.service.CategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,35 +15,38 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/categories")
-public class CategoryController {
+public class CategoryController implements CategoryApi {
   private final CategoryService categoryService;
 
-  @GetMapping("/user/{userId}")
-  public ResponseEntity<List<Category>> getUserCategories(@PathVariable Long userId) {
+  @Override
+  public ResponseEntity<List<Category>> getUserCategories(Long userId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.findAll(userId));
   }
 
-  @GetMapping("/{categoryId}")
-  public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId) {
+  @Override
+  public ResponseEntity<Category> getCategoryById(Long categoryId) {
     return ResponseEntity.status(HttpStatus.OK).body(categoryService.findById(categoryId));
   }
 
-  @DeleteMapping("/delete/{categoryId}")
-  public ResponseEntity<Void> deleteCategoryById(@PathVariable Long categoryId) {
+  @Override
+  public ResponseEntity<Void> deleteCategoryById(Long categoryId) {
     categoryService.deleteCategory(categoryId);
-    return ResponseEntity.status(HttpStatus.OK).build();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @DeleteMapping("/delete/user/{userId}")
-  public ResponseEntity<Void> deleteUserCategories(@PathVariable Long userId) {
+  @Override
+  public ResponseEntity<Void> deleteUserCategories(Long userId) {
     categoryService.deleteAllUserCategories(userId);
-    return ResponseEntity.status(HttpStatus.OK).build();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @PostMapping("/create/{name}/{userId}")
-  public ResponseEntity<CategoryId> createCategoryForUser(@PathVariable String name, @PathVariable Long userId) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.create(name, userId));
+  @Override
+  public ResponseEntity<CategoryId> createCategoryForUser(CategoryDto categoryDto, Long userId) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.create(categoryDto, userId));
   }
 
+  @Override
+  public ResponseEntity<Category> updateCategoryData(CategoryDto categoryDto, Long categoryId) {
+    return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryData(categoryDto, categoryId));
+  }
 }

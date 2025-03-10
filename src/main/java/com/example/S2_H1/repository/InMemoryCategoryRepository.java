@@ -74,4 +74,10 @@ public class InMemoryCategoryRepository implements CategoryRepository {
     log.info("Категория {} с айди {} успешно добавлена в репозиторий пользователю с айди {}", category.getName(), categoryId.id(), category.getUserId());
     return category.getCategoryId();
   }
+
+  @Override
+  public void saveWithoutIdUpdate(Category category) {
+    categories.add(category);
+    log.info("Категория с айди {} успешно добавлена в репозиторий без изменения айди", category.getCategoryId());
+  }
 }
