@@ -3,3 +3,6 @@ server:
 spring:
   application:
     name: myTests
+  kafka:
+    bootstrap-servers: dummy:12345
+    enabled: false
