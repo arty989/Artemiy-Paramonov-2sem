@@ -60,7 +60,8 @@ public class UserControllerMvcTest {
 
       String userJson = "{\"newUserName\":\"Ivan\"}";
 
-      mockMvc.perform(patch("/api/users/rename/{userId}", 1)
+      mockMvc.perform(patch("/api/users/rename")
+      .header("userId", "1")
       .contentType("application/json")
       .content(userJson))
       .andExpect(status().isOk())
@@ -70,11 +71,10 @@ public class UserControllerMvcTest {
 
     @Test
     public void whenDeleteWithInvalidUserID_thenReturns404() throws Exception {
-      Long nonExistentId = 999L;
 
-      doThrow(new NoSuchUserException("Пользователь с ID " + nonExistentId + " не найден")).when(userService).deleteUser(any(Long.class));
+      doThrow(new NoSuchUserException("Пользователь с ID " + 999 + " не найден")).when(userService).deleteUser(any(Long.class));
 
-      mockMvc.perform(delete("/api/users/delete/{userId}", nonExistentId))
+      mockMvc.perform(delete("/api/users/delete").header("userId", "999"))
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("$").value("Пользователь с ID 999 не найден"));
     }
