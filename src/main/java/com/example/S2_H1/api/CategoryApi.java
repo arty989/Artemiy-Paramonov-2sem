@@ -1,10 +1,12 @@
 package com.example.S2_H1.api;
 
-import com.example.S2_H1.dto.CategoryDto;
-import com.example.S2_H1.entity.Category;
-import com.example.S2_H1.entity.CategoryId;
+import com.example.S2_H1.request.category.CategoryCreateRequest;
+import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
+import com.example.S2_H1.response.category.CategoryIdResponse;
+import com.example.S2_H1.response.category.CategoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -24,16 +27,24 @@ import java.util.List;
 public interface CategoryApi {
   @Operation(
     summary = "Получить список категорий пользователя по ID",
-    description = "Получает ID пользователя и возвращает список категорий, которые он себе добавил"
+    description = "Получает ID пользователя из заголовков запроса (headers) и возвращает список категорий, которые он себе добавил",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Список категорий пользователя получен"),
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
-  @GetMapping("/user/{userId}")
-  ResponseEntity<List<Category>> getUserCategories(
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+  @GetMapping
+  ResponseEntity<List<CategoryResponse>> getUserCategories(
+    @RequestHeader("userId") Long userId
   );
 
   @Operation(
@@ -45,7 +56,7 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "404", description = "Категория с таким ID не найдена")
   })
   @GetMapping("/{categoryId}")
-  ResponseEntity<Category> getCategoryById(
+  ResponseEntity<CategoryResponse> getCategoryById(
     @Parameter(description = "ID категории", example = "1")
     @PathVariable Long categoryId
   );
@@ -66,32 +77,48 @@ public interface CategoryApi {
 
   @Operation(
     summary = "Удалить все категории пользователя по его ID",
-    description = "Получает ID пользователя и удаляет все его категории"
+    description = "Получает ID пользователя из заголовков запроса (headers) и удаляет все его категории",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "204", description = "Категории пользователя успешно удалены"),
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
-  @DeleteMapping("/delete/user/{userId}")
+  @DeleteMapping("/delete/all")
   ResponseEntity<Void> deleteUserCategories(
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+    @RequestHeader("userId") Long userId
   );
 
   @Operation(
     summary = "Создать новую категорию пользователю",
-    description = "Получает ID пользователя и данные категории, создаёт пользователю новую категорию"
+    description = "Получает ID пользователя из заголовков запроса (headers) и данные категории, создаёт пользователю новую категорию",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Категория успешно создана"),
     @ApiResponse(responseCode = "404", description = "Пользователь с таким ID не найден")
   })
-  @PostMapping("/create/{userId}")
-  ResponseEntity<CategoryId> createCategoryForUser(
-    @RequestBody CategoryDto categoryDto,
+  @PostMapping("/create")
+  ResponseEntity<CategoryIdResponse> createCategoryForUser(
+    @RequestBody CategoryCreateRequest categoryDto,
 
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+    @RequestHeader("userId") Long userId
   );
 
   @Operation(
@@ -103,8 +130,8 @@ public interface CategoryApi {
     @ApiResponse(responseCode = "404", description = "Категория с таким ID не найдена")
   })
   @PutMapping("/update/{categoryId}")
-  ResponseEntity<Category> updateCategoryData(
-    @RequestBody CategoryDto categoryDto,
+  ResponseEntity<CategoryResponse> updateCategoryData(
+    @RequestBody CategoryUpdateDataRequest categoryUpdateDataRequest,
 
     @Parameter(description = "ID категории", example = "1")
     @PathVariable Long categoryId

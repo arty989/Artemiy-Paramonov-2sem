@@ -1,21 +1,23 @@
 package com.example.S2_H1.api;
 
-import com.example.S2_H1.dto.UserDto;
-import com.example.S2_H1.dto.UserUpdateNameDto;
-import com.example.S2_H1.entity.User;
-import com.example.S2_H1.entity.UserId;
+import com.example.S2_H1.request.user.UserCreateRequest;
+import com.example.S2_H1.request.user.UserUpdateDataRequest;
+import com.example.S2_H1.request.user.UserUpdateNameRequest;
+import com.example.S2_H1.response.user.UserIdResponse;
+import com.example.S2_H1.response.user.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "User API", description = "Управление пользователями")
@@ -30,51 +32,75 @@ public interface UserApi {
     @ApiResponse(responseCode = "201", description = "Пользователь создан"),
   })
   @PostMapping("/register")
-  ResponseEntity<UserId> registerUser(@RequestBody UserDto userDto);
+  ResponseEntity<UserIdResponse> registerUser(@RequestBody UserCreateRequest userCreateRequest);
 
   @Operation(
     summary = "Удалить пользователя по ID",
-    description = "Получает ID пользователя и удаляет его из репозитория"
+    description = "Получает ID пользователя из заголовков запроса (headers) и удаляет его из репозитория",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "204", description = "Пользователь успешно удалён"),
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
-  @DeleteMapping("/delete/{userId}")
+  @DeleteMapping("/delete")
   ResponseEntity<Void> deleteUser(
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+    @RequestHeader("userId") Long userId
   );
 
   @Operation(
     summary = "Изменить имя пользователя по ID",
-    description = "Получает ID пользователя и новое имя. Меняет имя пользователя в репозитории"
+    description = "Получает ID пользователя из заголовков запроса (headers) и новое имя из body. Меняет имя пользователя в репозитории",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Имя пользователя успешно изменено"),
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
-  @PatchMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserName(
-    @RequestBody UserUpdateNameDto userUpdateNameDto,
+  @PatchMapping("/rename")
+  ResponseEntity<UserResponse> updateUserName(
+    @RequestBody UserUpdateNameRequest userUpdateNameRequest,
 
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+    @RequestHeader("userId") Long userId
   );
 
   @Operation(
     summary = "Обновить данные пользователя по ID",
-    description = "Получает ID пользователя и новые данные. Меняет данные пользователя в репозитории"
+    description = "Получает ID пользователя из заголовков запроса (headers) и новые данные из body. Меняет данные пользователя в репозитории",
+    parameters = {
+      @Parameter(
+        name = "userId",
+        in = ParameterIn.HEADER,
+        required = true,
+        description = "ID пользователя",
+        example = "123"
+      )
+    }
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Данные пользователя успешно изменены"),
     @ApiResponse(responseCode = "404", description = "Пользователь не найден")
   })
-  @PutMapping("/rename/{userId}")
-  ResponseEntity<User> updateUserData(
-    @RequestBody UserDto userDto,
+  @PutMapping("/update")
+  ResponseEntity<UserResponse> updateUserData(
+    @RequestBody UserUpdateDataRequest userCreateDto,
 
-    @Parameter(description = "ID пользователя", example = "1")
-    @PathVariable Long userId
+    @RequestHeader("userId") Long userId
   );
 }
