@@ -1,113 +1,108 @@
 package com.example.S2_H1.service;
 
-
 import com.example.S2_H1.dto.AuditMessageDto;
 import com.example.S2_H1.enums.Action;
+import com.example.S2_H1.repository.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.Properties;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(
-  classes = {AuditProducerService.class},
-  properties = {"topic-to-send-message=test-topic"}
+   properties = {"topic-to-send-message=test-topic"}
 )
-@Import({KafkaAutoConfiguration.class, AuditProducerServiceTest.ObjectMapperTestConfig.class})
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-public class AuditProducerServiceTest {
-
-  @TestConfiguration
-  static class ObjectMapperTestConfig {
-    @Bean
-    public ObjectMapper objectMapper() {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return objectMapper;
-    }
-  }
+@ActiveProfiles("test")
+public class OutboxSchedulerServiceTest {
 
   @Container
   @ServiceConnection
   public static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
 
+  @Container
+  @ServiceConnection
+  public static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:13");
+
   @Autowired
-  private AuditProducerService auditProducerService;
+  private OutboxSchedulerService outboxSchedulerService;
+
+  @Autowired
+  private AuditService auditService;
+
+  @Autowired
+  private OutboxRepository outboxRepository;
+
   @Autowired
   private ObjectMapper objectMapper;
 
+  @BeforeEach
+  void setUp() {
+    outboxRepository.deleteAll();
+  }
+
   @Test
   void shouldSendMessageToKafkaSuccessfully() {
-    AuditMessageDto testDtoMessage = AuditMessageDto.builder()
-        .userId(1L)
-        .eventTime(Instant.now())
-        .eventType(Action.INSERT)
-        .eventDetails("Пустота")
-    .build();
+    Long userId = 1L;
+    Action action = Action.INSERT;
+    String eventDetails = "Подробности";
 
-    assertDoesNotThrow(() -> auditProducerService.sendAuditMessage(testDtoMessage));
+    assertDoesNotThrow(() -> auditService.saveAuditMessage(userId, action, eventDetails));
+
+    outboxSchedulerService.processOutbox();
 
     KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "test-group-id");
     consumer.subscribe(List.of("test-topic"));
 
     ConsumerRecords<String, String> records = consumer.poll();
+
     assertThat(1).isEqualTo(records.count());
+
     records.iterator().forEachRemaining(
-      record -> {
-        try {
-          AuditMessageDto message = objectMapper.readValue(record.value(), AuditMessageDto.class);
-          assertThat(testDtoMessage).isEqualTo(message);
-        } catch (Exception e) {
-          fail("Ошибка десериализации JSON: " + e.getMessage());
-        }
+    record -> {
+      try {
+        assertThat(record.value())
+        .contains("\"userId\":" + userId)
+        .contains("\"eventType\":\"" + action + "\"")
+        .contains("\"eventDetails\":\"" + eventDetails + "\"");
+
+        AuditMessageDto message = objectMapper.readValue(record.value(), AuditMessageDto.class);
+        assertThat(message.getUserId()).isEqualTo(userId);
+        assertThat(message.getEventType()).isEqualTo(action);
+        assertThat(message.getEventDetails()).isEqualTo(eventDetails);
+
+        assertThat(outboxRepository.findAll().size()).isEqualTo(0);
+
+      } catch (JsonProcessingException e) {
+        fail("Ошибка десериализации JSON: " + e.getMessage());
       }
+    }
     );
   }
 
-  @Test
-  void shouldFailToSendMessageDueToSerializationError() {
-    ObjectMapper brokenObjectMapper = new ObjectMapper();
-
-    AuditProducerService serviceWithBrokenMapper = new AuditProducerService(
-      auditProducerService.getKafkaTemplate(),
-      brokenObjectMapper
-    );
-
-    AuditMessageDto testDtoMessage = AuditMessageDto.builder()
-      .userId(1L)
-      .eventTime(Instant.now())
-      .eventType(Action.INSERT)
-      .eventDetails("Пустота")
-    .build();
-
-    assertThatThrownBy(() -> serviceWithBrokenMapper.sendAuditMessage(testDtoMessage))
-      .isInstanceOf(JsonProcessingException.class)
-      .hasMessageContaining("Java 8 date/time type `java.time.Instant` not supported");
-  }
+  //Негативный тест в AuditServiceTest
 
   private static class KafkaTestConsumer {
     private final KafkaConsumer<String, String> consumer;

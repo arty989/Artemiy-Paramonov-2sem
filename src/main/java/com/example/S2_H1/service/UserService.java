@@ -1,6 +1,5 @@
 package com.example.S2_H1.service;
 
-import com.example.S2_H1.dto.AuditMessageDto;
 import com.example.S2_H1.enums.Action;
 import com.example.S2_H1.request.user.UserCreateRequest;
 import com.example.S2_H1.request.user.UserUpdateDataRequest;
@@ -10,14 +9,12 @@ import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.response.user.UserIdResponse;
 import com.example.S2_H1.response.user.UserResponse;
 import com.example.S2_H1.service.exception.NoSuchUserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserService {
 
   private final UserRepository userRepository;
-  private final AuditProducerService auditProducerService;
+  private final AuditService auditService;
 
   private final Map<Long, String> userNames = new ConcurrentHashMap<>();
 
@@ -43,12 +40,9 @@ public class UserService {
     log.info("Пользователь сохранён");
 
     userNames.put(user.getUserId(), user.getUserName());
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(user.getUserId())
-        .eventTime(Instant.now())
-        .eventType(Action.INSERT)
-        .eventDetails("Пользователь зарегистрирован")
-    .build());
+
+    auditService.saveAuditMessage(user.getUserId(), Action.INSERT, "Пользователь зарегистрирован");
+
     return new UserIdResponse(user.getUserId());
   }
 
@@ -61,12 +55,9 @@ public class UserService {
       userRepository.deleteById(userId);
       log.info("Пользователь с id {} удалён из репозитория", userId);
       userNames.remove(userId);
-      sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.DELETE)
-        .eventDetails("Пользователь удалён")
-    .build());
+
+      auditService.saveAuditMessage(userId, Action.DELETE, "Пользователь удалён");
+
     } else {
       log.info("Пользователь с айди {} не был найден", userId);
       throw new NoSuchUserException("Пользователь с id " + userId + " не найден");
@@ -92,12 +83,8 @@ public class UserService {
     userRepository.save(user);
     log.info("Изменение имени пользователя {} сохранено в репозиторий", userId);
 
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-      .userId(userId)
-      .eventTime(Instant.now())
-      .eventType(Action.UPDATE)
-      .eventDetails("Обновлено имя пользователя")
-    .build());
+    auditService.saveAuditMessage(userId, Action.UPDATE, "Обновлено имя пользователя");
+
     return new UserResponse(user);
   }
 
@@ -115,26 +102,14 @@ public class UserService {
     log.info("Изменения данных пользователя {} сохранены в репозиторий", userId);
 
     userNames.put(userId, userUpdateDataRequest.getUserName());
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-      .userId(userId)
-      .eventTime(Instant.now())
-      .eventType(Action.UPDATE)
-      .eventDetails("Обновлены данные пользователя")
-    .build());
+
+    auditService.saveAuditMessage(userId, Action.UPDATE, "Обновлены данные пользователя");
+
     return new UserResponse(user);
   }
 
   @Transactional(readOnly = true)
   private User getUserById(Long userId) {
     return userRepository.findById(userId).orElseThrow(() -> new NoSuchUserException("Пользователь с id " + userId + " не найден"));
-  }
-
-  private void sendAuditMessageToKafka(AuditMessageDto auditMessageDto) {
-    try {
-      auditProducerService.sendAuditMessage(auditMessageDto);
-      log.info("Сообщение отправлено в Kafka");
-    } catch (JsonProcessingException e) {
-      log.error("Ошибка отправки сообщения в Kafka", e);
-    }
   }
 }

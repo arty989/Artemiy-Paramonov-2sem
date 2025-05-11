@@ -1,6 +1,5 @@
 package com.example.S2_H1.service;
 
-import com.example.S2_H1.dto.AuditMessageDto;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.enums.Action;
 import com.example.S2_H1.repository.UserRepository;
@@ -11,9 +10,7 @@ import com.example.S2_H1.request.category.CategoryUpdateDataRequest;
 import com.example.S2_H1.response.category.CategoryIdResponse;
 import com.example.S2_H1.response.category.CategoryResponse;
 import com.example.S2_H1.service.exception.NoSuchCategoryException;
-import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,7 +19,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +29,9 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
-  private final AuditProducerService auditProducerService;
+  private final AuditService auditService;
 
-  @Transactional(readOnly = true)
+  @Transactional
   public List<CategoryResponse> findAllUserCategories(Long userId) {
     log.info("Получение всех категорий юзера с айди {}", userId);
 
@@ -47,12 +43,7 @@ public class CategoryService {
       responseCategories.add(new CategoryResponse(category));
     }
 
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.SELECT)
-        .eventDetails("Получены все категории пользователя")
-    .build());
+    auditService.saveAuditMessage(userId, Action.SELECT, "Получены все категории пользователя");
 
     return responseCategories;
   }
@@ -86,12 +77,8 @@ public class CategoryService {
   public void deleteAllUserCategories(Long userId) {
     log.info("Удаление всех категорий юзера {}", userId);
     categoryRepository.deleteByUserUserId(userId);
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.DELETE)
-        .eventDetails("Удалены все категории пользователя")
-    .build());
+
+    auditService.saveAuditMessage(userId, Action.DELETE, "Удалены все категории пользователя");
   }
 
   @Transactional
@@ -110,12 +97,9 @@ public class CategoryService {
     user.addCategory(category);
 
     userRepository.save(user);
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.INSERT)
-        .eventDetails("Создана категория " + categoryCreateRequest.getCategoryName() + " для пользователя")
-    .build());
+
+    auditService.saveAuditMessage(userId, Action.INSERT, "Создана категория " + categoryCreateRequest.getCategoryName() + " для пользователя");
+
     return new CategoryIdResponse(category.getCategoryId());
   }
 
@@ -143,14 +127,5 @@ public class CategoryService {
   @Transactional(readOnly = true)
   private Category getCategoryById(Long categoryId) {
     return categoryRepository.findById(categoryId).orElseThrow(() -> new NoSuchCategoryException("Категория с id " + categoryId + " не найдена"));
-  }
-
-  private void sendAuditMessageToKafka(AuditMessageDto auditMessageDto) {
-    try {
-      auditProducerService.sendAuditMessage(auditMessageDto);
-      log.info("Сообщение отправлено в Kafka");
-    } catch (JsonProcessingException e) {
-      log.error("Ошибка отправки сообщения в Kafka", e);
-    }
   }
 }

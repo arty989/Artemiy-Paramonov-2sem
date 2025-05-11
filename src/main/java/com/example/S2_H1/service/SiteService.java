@@ -1,6 +1,5 @@
 package com.example.S2_H1.service;
 
-import com.example.S2_H1.dto.AuditMessageDto;
 import com.example.S2_H1.entity.Site;
 import com.example.S2_H1.entity.User;
 import com.example.S2_H1.enums.Action;
@@ -12,7 +11,6 @@ import com.example.S2_H1.response.site.SiteIdResponse;
 import com.example.S2_H1.response.site.SiteResponse;
 import com.example.S2_H1.service.exception.NoSuchSiteException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -20,7 +18,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +28,7 @@ public class SiteService {
 
   private final SiteRepository siteRepository;
   private final UserRepository userRepository;
-  private final AuditProducerService auditProducerService;
+  private final AuditService auditService;
 
   @Transactional(readOnly = true)
   public List<SiteResponse> getAllAvailableSites() {
@@ -43,7 +40,7 @@ public class SiteService {
   }
 
   //At least once
-  @Transactional(readOnly = true)
+  @Transactional
   @Retryable(retryFor = NoSuchUserException.class, maxAttempts = 5, backoff = @Backoff(delay = 10_000))
   public List<SiteResponse> getUserSites(Long userId) {
     log.info("Получение всех сайтов юзера с айди {}", userId);
@@ -57,13 +54,10 @@ public class SiteService {
         responseSites.add(new SiteResponse(site));
       }
 
-      sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.SELECT)
-        .eventDetails("Получены все сайты пользователя")
-      .build());
+      auditService.saveAuditMessage(userId, Action.SELECT, "Получены все сайты пользователя");
+
       return responseSites;
+
     } catch (NoSuchUserException e) {
       log.warn("Пользователь не найден, повторяю попытку");
 
@@ -83,12 +77,7 @@ public class SiteService {
     site.deleteUser(user);
     log.info("Операция завершена");
 
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-      .userId(userId)
-      .eventTime(Instant.now())
-      .eventType(Action.DELETE)
-      .eventDetails("Удалён сайт " + site.getSiteUrl() + " у пользователя")
-    .build());
+    auditService.saveAuditMessage(userId, Action.DELETE, "Удалён сайт " + site.getSiteUrl() + " у пользователя");
 
     siteRepository.save(site);
     userRepository.save(user);
@@ -151,14 +140,5 @@ public class SiteService {
   @Transactional(readOnly = true)
   private Site getSiteById(Long siteId) {
     return siteRepository.findById(siteId).orElseThrow(() -> new NoSuchSiteException("Сайт с id " + siteId + " не найден"));
-  }
-
-  private void sendAuditMessageToKafka(AuditMessageDto auditMessageDto) {
-    try {
-      auditProducerService.sendAuditMessage(auditMessageDto);
-      log.info("Сообщение отправлено в Kafka");
-    } catch (JsonProcessingException e) {
-      log.error("Ошибка отправки сообщения в Kafka", e);
-    }
   }
 }

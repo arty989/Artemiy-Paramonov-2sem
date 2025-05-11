@@ -1,6 +1,5 @@
 package com.example.S2_H1.service;
 
-import com.example.S2_H1.dto.AuditMessageDto;
 import com.example.S2_H1.entity.Article;
 import com.example.S2_H1.entity.Category;
 import com.example.S2_H1.entity.User;
@@ -10,14 +9,12 @@ import com.example.S2_H1.repository.UserRepository;
 import com.example.S2_H1.response.article.ArticleResponse;
 import com.example.S2_H1.service.exception.NoSuchArticleException;
 import com.example.S2_H1.service.exception.NoSuchUserException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +31,8 @@ import java.util.concurrent.CompletableFuture;
 public class ArticleService {
   private final UserRepository userRepository;
   private final ArticleRepository articleRepository;
-  private final AuditProducerService auditProducerService;
+  private final AuditService auditService;
+
 
   @Async
   @Transactional
@@ -44,12 +42,7 @@ public class ArticleService {
     List<Category> userCategories = getUserCategories(userId);
     log.info("Получены категории пользователя");
 
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.SELECT)
-        .eventDetails("Получены категории пользователя для нахождения статей")
-    .build());
+    auditService.saveAuditMessage(userId, Action.SELECT, "Получены категории пользователя для нахождения статей");
 
     // В проекте должна быть логика получения статей, для пользователя спаршенных из его сайтов, и затем распределение их по категориям
     List<ArticleResponse> articlesForCategories = new ArrayList<>();
@@ -60,12 +53,7 @@ public class ArticleService {
       articlesForCategories.add(new ArticleResponse(getArticleById(1L)));
     }
 
-    sendAuditMessageToKafka(AuditMessageDto.builder()
-        .userId(userId)
-        .eventTime(Instant.now())
-        .eventType(Action.SELECT)
-        .eventDetails("Получены статьи для пользователя")
-    .build());
+    auditService.saveAuditMessage(userId, Action.SELECT, "Получены статьи для пользователя");
 
     log.info("Вернули юзеру список статей и категорий, к которым они относятся");
     return CompletableFuture.completedFuture(articlesForCategories);
@@ -81,14 +69,5 @@ public class ArticleService {
   @Transactional(readOnly = true)
   private Article getArticleById(Long articleId) {
     return articleRepository.findById(articleId).orElseThrow(() -> new NoSuchArticleException("Статья с id " + articleId + " не найден"));
-  }
-
-  private void sendAuditMessageToKafka(AuditMessageDto auditMessageDto) {
-    try {
-      auditProducerService.sendAuditMessage(auditMessageDto);
-      log.info("Сообщение отправлено в Kafka");
-    } catch (JsonProcessingException e) {
-      log.error("Ошибка отправки сообщения в Kafka", e);
-    }
   }
 }
