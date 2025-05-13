@@ -1,6 +1,7 @@
 package com.example.S2_H1.service;
 
 import com.example.S2_H1.entity.OutboxRecord;
+import com.example.S2_H1.metric.OutboxMetrics;
 import com.example.S2_H1.repository.OutboxRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class OutboxSchedulerService {
   private final KafkaTemplate<String, String> kafkaTemplate;
   private final OutboxRepository outboxRepository;
 
+  private final OutboxMetrics outboxMetrics;
+
   @Value("${topic-to-send-message}")
   private String topic;
 
@@ -34,19 +37,30 @@ public class OutboxSchedulerService {
   @Scheduled(fixedDelay = 10000)
   public void processOutbox() {
     List<OutboxRecord> result = outboxRepository.findAll();
+
     for (OutboxRecord outboxRecord : result) {
+      long startTime = System.nanoTime();
+      String exceptionName = "none";
+
       try {
         sendMessageAndDelete(outboxRecord);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
+        exceptionName = "InterruptedException";
         log.error("Неожиданное прерывание потока при отправке сообщения в kafka", e);
-        return;
       } catch (ExecutionException e) {
+        exceptionName = "ExecutionException";
         log.warn("Не удалось отправить сообщение в kafka", e);
       } catch (TimeoutException e) {
+        exceptionName = "TimeoutException";
         log.warn("Не удалось отправить сообщение в kafka из-за превышения допустимого времени отправки", e);
       } catch (DataAccessException e) {
+        exceptionName = "DataAccessException";
         log.error("Возникла проблема с удалением сообщения из outbox", e);
+      } finally {
+        long duration = System.nanoTime() - startTime;
+        double durationInMilliseconds = (double) duration / 1_000_000.0;
+        outboxMetrics.recordSendTime(exceptionName, durationInMilliseconds);
       }
     }
   }

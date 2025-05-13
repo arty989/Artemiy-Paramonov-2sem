@@ -22,6 +22,12 @@ management:
         include: "*"
         exclude: shutdown
       base-path: /admin/actuator
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      service: "content-delivery-service"
 
 server:
   tomcat:

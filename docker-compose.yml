@@ -35,3 +35,18 @@ services:
       - CASSANDRA_DC=datacenter1
       - CASSANDRA_CLUSTER_NAME=MyCluster
       - CASSANDRA_NUM_TOKENS=1
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
