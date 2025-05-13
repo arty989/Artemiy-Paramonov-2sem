@@ -1,6 +1,19 @@
 spring:
   application:
     name : 2H_S1
+  datasource:
+    url: jdbc:postgresql://localhost:5432/courses_app
+    username: postgres
+    password: password
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: validate
+  kafka:
+    bootstrap-servers: localhost:29093
 
 management:
   endpoints:
@@ -9,6 +22,12 @@ management:
         include: "*"
         exclude: shutdown
       base-path: /admin/actuator
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      service: "content-delivery-service"
 
 server:
   tomcat:
@@ -31,3 +50,7 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 3
         sliding-window-type: count_based
         sliding-window-size: 10
+
+topic-to-send-message: audit-topic
+
+
